@@ -4,8 +4,11 @@ import { CameraFeed } from "~/components/CameraFeed";
 import { MonitoringControls } from "~/components/MonitoringControls";
 import { AnimalSelector } from "~/components/AnimalSelector";
 import { ZoneDrawer } from "~/components/ZoneDrawer";
+import { AlertSettings } from "~/components/AlertSettings";
+import { UserGuide } from "~/components/UserGuide";
 import { useMonitoringState } from "~/contexts/MonitoringContext";
 import { useObjectDetection } from "~/hooks/useObjectDetection";
+import { useAlertManager } from "~/hooks/useAlertManager";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,6 +20,7 @@ export function meta({}: Route.MetaArgs) {
 export default function Monitor() {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const { isMonitoring, zone, selectedAnimals } = useMonitoringState();
+  const { triggerAlert } = useAlertManager();
 
   const handleCameraReady = (video: HTMLVideoElement) => {
     console.log("Camera ready:", video);
@@ -25,8 +29,8 @@ export default function Monitor() {
 
   const handleBoundaryBreach = useCallback(() => {
     console.log("🚨 Boundary breach detected!");
-    // Alert will be handled in Phase 6
-  }, []);
+    triggerAlert();
+  }, [triggerAlert]);
 
   const { isModelLoading, modelError, detections, breachDetected } = useObjectDetection({
     videoElement,
@@ -65,12 +69,14 @@ export default function Monitor() {
         </div>
       </header>
 
-      <main className="flex flex-1 gap-6 p-6">
+      <main className="flex flex-1 flex-col gap-6 p-6 lg:flex-row">
         <div className="flex-1">
           <CameraFeed onCameraReady={handleCameraReady} />
         </div>
 
-        <aside className="w-80 space-y-6">
+        <aside className="w-full space-y-6 lg:w-80">
+          <UserGuide />
+
           <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
             <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-50">
               Controls
@@ -89,11 +95,20 @@ export default function Monitor() {
             <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-50">
               Zone Drawing
             </h2>
-            <ZoneDrawer
-              videoElement={videoElement}
-              containerWidth={280}
-              containerHeight={158}
-            />
+            <div className="w-full overflow-hidden">
+              <ZoneDrawer
+                videoElement={videoElement}
+                containerWidth={280}
+                containerHeight={158}
+              />
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
+            <h2 className="mb-4 text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Alert Settings
+            </h2>
+            <AlertSettings />
           </div>
 
           {/* Detection Status Panel */}
