@@ -1,44 +1,51 @@
-import { useState, useCallback } from "react";
-import type { Route } from "./+types/monitor";
-import { CameraFeed } from "~/components/CameraFeed";
-import { MonitoringControls } from "~/components/MonitoringControls";
-import { AnimalSelector } from "~/components/AnimalSelector";
-import { ZoneDrawer } from "~/components/ZoneDrawer";
-import { AlertSettings } from "~/components/AlertSettings";
-import { UserGuide } from "~/components/UserGuide";
-import { useMonitoringState } from "~/contexts/MonitoringContext";
-import { useObjectDetection } from "~/hooks/useObjectDetection";
-import { useAlertManager } from "~/hooks/useAlertManager";
+import { useState, useCallback } from 'react';
+import type { Route } from './+types/monitor';
+import { CameraFeed } from '~/components/CameraFeed';
+import { MonitoringControls } from '~/components/MonitoringControls';
+import { AnimalSelector } from '~/components/AnimalSelector';
+import { ZoneDrawer } from '~/components/ZoneDrawer';
+import { AlertSettings } from '~/components/AlertSettings';
+import { UserGuide } from '~/components/UserGuide';
+import { useMonitoringState } from '~/contexts/MonitoringContext';
+import { useObjectDetection } from '~/hooks/useObjectDetection';
+import { useAlertManager } from '~/hooks/useAlertManager';
 
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "Monitor - Boundary Guard AI" },
-    { name: "description", content: "Monitor your space with AI-powered boundary detection" },
+    { title: 'Monitor - Boundary Guard AI' },
+    {
+      name: 'description',
+      content:
+        'Monitor your space with AI-powered boundary detection',
+    },
   ];
 }
 
 export default function Monitor() {
-  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
-  const { isMonitoring, zone, selectedAnimals } = useMonitoringState();
+  const [videoElement, setVideoElement] =
+    useState<HTMLVideoElement | null>(null);
+  const { isMonitoring, zone, selectedAnimals } =
+    useMonitoringState();
   const { triggerAlert } = useAlertManager();
 
   const handleCameraReady = (video: HTMLVideoElement) => {
-    console.log("Camera ready:", video);
+    console.log('Camera ready:', video);
     setVideoElement(video);
   };
 
   const handleBoundaryBreach = useCallback(() => {
-    console.log("🚨 Boundary breach detected!");
+    console.log('🚨 Boundary breach detected!');
     triggerAlert();
   }, [triggerAlert]);
 
-  const { isModelLoading, modelError, detections, breachDetected } = useObjectDetection({
-    videoElement,
-    isMonitoring,
-    selectedAnimals,
-    zone,
-    onBoundaryBreach: handleBoundaryBreach,
-  });
+  const { isModelLoading, modelError, detections, breachDetected } =
+    useObjectDetection({
+      videoElement,
+      isMonitoring,
+      selectedAnimals,
+      zone,
+      onBoundaryBreach: handleBoundaryBreach,
+    });
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-50 dark:bg-slate-900">
@@ -74,7 +81,7 @@ export default function Monitor() {
           <CameraFeed onCameraReady={handleCameraReady} />
         </div>
 
-        <aside className="w-full space-y-6 lg:w-80">
+        <aside className="w-full space-y-6 lg:w-80 lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)]">
           <UserGuide />
 
           <div className="rounded-lg border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
@@ -126,11 +133,11 @@ export default function Monitor() {
                   <span
                     className={`text-sm font-semibold ${
                       breachDetected
-                        ? "text-red-600 dark:text-red-400"
-                        : "text-green-600 dark:text-green-400"
+                        ? 'text-red-600 dark:text-red-400'
+                        : 'text-green-600 dark:text-green-400'
                     }`}
                   >
-                    {breachDetected ? "⚠️ BREACH" : "✓ Safe"}
+                    {breachDetected ? '⚠️ BREACH' : '✓ Safe'}
                   </span>
                 </div>
 
@@ -154,7 +161,8 @@ export default function Monitor() {
                           key={idx}
                           className="text-xs text-slate-700 dark:text-slate-300"
                         >
-                          • {det.class} ({(det.score * 100).toFixed(0)}%)
+                          • {det.class} (
+                          {(det.score * 100).toFixed(0)}%)
                         </div>
                       ))}
                     </div>
