@@ -78,7 +78,11 @@ export default function Monitor() {
 
       <main className="flex flex-1 flex-col gap-6 p-6 lg:flex-row">
         <div className="flex-1">
-          <CameraFeed onCameraReady={handleCameraReady} />
+          <CameraFeed
+            onCameraReady={handleCameraReady}
+            detections={detections}
+            zone={zone}
+          />
         </div>
 
         <aside className="w-full space-y-6 lg:w-80 lg:overflow-y-auto lg:max-h-[calc(100vh-8rem)]">
