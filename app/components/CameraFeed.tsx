@@ -1,22 +1,32 @@
 import { useRef, useState, useCallback } from "react";
 import Webcam from "react-webcam";
+import { DetectionCanvas } from "./DetectionCanvas";
+import type { Detection, Zone } from "~/types";
 
 interface CameraFeedProps {
   onCameraReady?: (video: HTMLVideoElement) => void;
+  detections?: Detection[];
+  zone?: Zone | null;
 }
 
-export function CameraFeed({ onCameraReady }: CameraFeedProps) {
+export function CameraFeed({ onCameraReady, detections = [], zone = null }: CameraFeedProps) {
   const webcamRef = useRef<Webcam>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
 
   const handleUserMedia = useCallback(() => {
     setIsLoading(false);
     setError(null);
 
-    // Notify parent when camera is ready
-    if (onCameraReady && webcamRef.current?.video) {
-      onCameraReady(webcamRef.current.video);
+    // Store video element and notify parent when camera is ready
+    if (webcamRef.current?.video) {
+      const video = webcamRef.current.video;
+      setVideoElement(video);
+
+      if (onCameraReady) {
+        onCameraReady(video);
+      }
     }
   }, [onCameraReady]);
 
@@ -73,6 +83,14 @@ export function CameraFeed({ onCameraReady }: CameraFeedProps) {
         onUserMediaError={handleUserMediaError}
         className="h-full w-full object-cover"
       />
+
+      {videoElement && (
+        <DetectionCanvas
+          videoElement={videoElement}
+          detections={detections}
+          zone={zone}
+        />
+      )}
     </div>
   );
 }
